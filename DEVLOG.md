@@ -16,3 +16,9 @@
 **Prompt:** User asked to update CLAUDE.md so that DEVLOG.md is included in every commit, then log and commit everything.
 
 **Response:** Added one instruction line to the Logging section of CLAUDE.md specifying that DEVLOG.md must be staged and committed alongside any other changed files. Committed CLAUDE.md, DEVLOG.md, and the linter-touched index.html together.
+
+## 2026-04-18 — Add README.md
+
+User requested a README with a link to the live GitHub Pages app and emoji styling.
+Created README.md with a live app link, problem statement, 7-step walkthrough, and tech stack summary.
+All vanilla JS / single-file details highlighted. User made a minor tweak to the client-side note.
