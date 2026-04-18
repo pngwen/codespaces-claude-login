@@ -3,8 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Claude Code — Codespaces Login Helper</title>
+  <title>Claude Code — Codespaces &amp; VS Code Extension Login Helper</title>
   <style>
+    /* ── Fork Me banner ───────────────────────────────────────────────────── */
+    .fork-banner {
+      position: fixed;
+      top: 0; right: 0;
+      z-index: 100;
+    }
+    .fork-banner a {
+      display: block;
+      width: 90px; height: 90px;
+      overflow: hidden;
+      text-decoration: none;
+    }
+    .fork-banner svg {
+      width: 90px; height: 90px;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -118,17 +134,45 @@
 </head>
 <body>
 
-<h1>Claude Code — Codespaces Login Helper</h1>
+<!-- Fork Me on GitHub banner -->
+<div class="fork-banner">
+  <a href="https://github.com/pngwen/codespaces-claude-login" target="_blank" rel="noopener" title="Fork me on GitHub">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250" aria-hidden="true">
+      <path d="M0 0l250 250H0z" fill="#238636"/>
+      <path d="M127 76c-26 0-47 21-47 47 0 21 13 38 32 44 2 .4 3-1 3-2v-8c-13 3-16-6-16-6-2-5-5-7-5-7-4-3.3.3-3 .3-3 5 .3 7 5 7 5 4 7 10 5 13 4 .4-3 2-5 3-6-10-1-20-5-20-22 0-5 2-9 5-12-.5-1-2-6 .5-12 0 0 4-1 13 5 4-1 8-1.5 12-1.5s8 .5 12 1.5c9-6 13-5 13-5 2.5 6 1 11 .5 12 3 3 5 7 5 12 0 17-10 21-20 22 2 1.5 3 4 3 8v12c0 1 1 2.5 3 2 19-6 32-23 32-44 0-26-21-47-47-47z" fill="#fff"/>
+    </svg>
+  </a>
+</div>
+
+<h1>Claude Code — Codespaces &amp; VS Code Extension Login Helper</h1>
+
+<div style="max-width:680px;margin:0 auto 1.75rem;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:1.25rem 1.5rem;">
+  <p style="color:#8b949e;font-size:0.9rem;margin-bottom:0.6rem;">
+    This tool helps you complete the OAuth login flow for <strong style="color:#e6edf3;">Claude Code</strong> (CLI) and the
+    <strong style="color:#e6edf3;">Claude Code VS Code extension</strong> when running inside a GitHub Codespace,
+    where the normal <code style="color:#79c0ff;">localhost</code> redirect cannot be reached from your browser.
+  </p>
+  <p style="color:#3fb950;font-size:0.875rem;margin:0;">
+    <strong>Privacy note:</strong> This page is entirely client-side. Every URL and token you paste stays in your browser — nothing is sent to any server.
+  </p>
+</div>
 
 <!-- Step 1: Install Claude Code -->
 <div class="step active" id="step-1">
-  <h2>Step 1 — Install Claude Code</h2>
-  <p>Run this command in your Codespace terminal to install Claude Code:</p>
+  <h2>Step 1 — Get your authorization URL</h2>
+  <p>
+    <strong style="color:#e6edf3;">Using the CLI?</strong> Run this in your Codespace terminal to install Claude Code, then run
+    <code style="color:#79c0ff;">claude</code> — it will print an authorization URL for you to copy.
+  </p>
   <div style="position:relative;">
     <pre id="install-cmd">curl -fsSL https://claude.ai/install.sh | sh</pre>
     <button class="copy-btn" onclick="copyPre('install-cmd', this)">Copy</button>
   </div>
-  <p style="margin-top:0.75rem;">Once installed, run <code style="color:#79c0ff;">claude</code> and copy the authorization URL it gives you. Paste it below.</p>
+  <p style="margin-top:0.75rem;">
+    <strong style="color:#e6edf3;">Using the VS Code extension?</strong> Open the Claude Code extension panel and click
+    <em>Sign in</em> — it will also give you an authorization URL to copy.
+  </p>
+  <p>Paste whichever authorization URL you received below:</p>
   <textarea id="auth-url-input" rows="4" placeholder="https://claude.ai/oauth/authorize?..."></textarea>
   <button class="primary" onclick="processAuthUrl()">Next</button>
   <p id="step1-error" style="color:#f85149;margin-top:0.5rem;display:none;"></p>
