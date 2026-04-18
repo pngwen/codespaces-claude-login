@@ -33,3 +33,7 @@ See [LICENSE](LICENSE).
 ---
 
 > 🍴 Forked and extended with ❤️ — contributions welcome!
+
+---
+
+© 2026 [Robert Lowe (pngwen)](https://github.com/pngwen) — Released under the [MIT License](LICENSE)

@@ -22,3 +22,10 @@
 User requested a README with a link to the live GitHub Pages app and emoji styling.
 Created README.md with a live app link, problem statement, 7-step walkthrough, and tech stack summary.
 All vanilla JS / single-file details highlighted. User made a minor tweak to the client-side note.
+
+## 2026-04-18 — Add footer and README copyright
+
+User requested a copyright footer with MIT license notice added to index.html,
+linking the pngwen name to https://github.com/pngwen. Footer styled subtly
+in the existing dark theme. README.md was also updated with the same copyright
+line as a trailing footer.
