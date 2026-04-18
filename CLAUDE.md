@@ -43,3 +43,6 @@ After each major step / commit, summarize the development effort that led
 there and append it to "DEVLOG.md". Just append to this file, do not read it.
 Keep the summaries short, about 3-5 lines for the summary, though give some
 indication of what was prompt and what was response.
+
+Always include DEVLOG.md in every commit, staging it alongside any other
+changed files.
