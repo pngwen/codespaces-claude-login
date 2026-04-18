@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code — Codespaces Login Helper</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: #58a6ff;
+    }
+
+    .step {
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      display: none;
+    }
+
+    .step.active { display: block; }
+
+    .step h2 {
+      font-size: 1rem;
+      color: #58a6ff;
+      margin-bottom: 0.75rem;
+    }
+
+    .step p {
+      color: #8b949e;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    pre {
+      background: #010409;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      font-family: 'Cascadia Code', 'Fira Mono', monospace;
+      font-size: 0.85rem;
+      color: #79c0ff;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 4px;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #30363d; color: #e6edf3; }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: #010409;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-family: 'Cascadia Code', 'Fira Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.65rem 0.85rem;
+      resize: vertical;
+      margin-bottom: 0.75rem;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    button.primary {
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button.primary:hover { background: #2ea043; }
+
+    .link-box {
+      margin-top: 0.5rem;
+    }
+    .link-box a {
+      color: #58a6ff;
+      word-break: break-all;
+    }
+
+    .success {
+      background: #0d2a0d;
+      border-color: #238636;
+    }
+    .success h2 { color: #3fb950; }
+  </style>
+</head>
+<body>
+
+<h1>Claude Code — Codespaces Login Helper</h1>
+
+<!-- Step 1: Install Claude Code -->
+<div class="step active" id="step-1">
+  <h2>Step 1 — Install Claude Code</h2>
+  <p>Run this command in your Codespace terminal to install Claude Code:</p>
+  <div style="position:relative;">
+    <pre id="install-cmd">curl -fsSL https://claude.ai/install.sh | sh</pre>
+    <button class="copy-btn" onclick="copyPre('install-cmd', this)">Copy</button>
+  </div>
+  <p style="margin-top:0.75rem;">Once installed, run <code style="color:#79c0ff;">claude</code> and copy the authorization URL it gives you. Paste it below.</p>
+  <textarea id="auth-url-input" rows="4" placeholder="https://claude.ai/oauth/authorize?..."></textarea>
+  <button class="primary" onclick="processAuthUrl()">Next</button>
+  <p id="step1-error" style="color:#f85149;margin-top:0.5rem;display:none;"></p>
+</div>
+
+<!-- Step 2: Paste port-forwarding URL -->
+<div class="step" id="step-2">
+  <h2 id="step2-heading">Step 2 — Provide the Codespace port-forwarding URL</h2>
+  <p id="step2-desc"></p>
+  <input type="text" id="port-fwd-input" placeholder="https://your-codespace-name-XXXXX-PORT.preview.app.github.dev" />
+  <button class="primary" onclick="processPortFwd()">Next</button>
+  <p id="step2-error" style="color:#f85149;margin-top:0.5rem;display:none;"></p>
+</div>
+
+<!-- Step 3: Click the auth link -->
+<div class="step" id="step-3">
+  <h2>Step 3 — Authorize Claude Code</h2>
+  <p>Click the link below to open the Claude authorization page in a new tab. Complete the login there, then come back here.</p>
+  <div class="link-box"><a id="auth-link" href="#" target="_blank" rel="noopener"></a></div>
+  <p style="margin-top:1rem;">After authorizing, your browser will try to redirect to a <code style="color:#79c0ff;">localhost</code> URL that fails in Codespaces. Copy that failed URL from the address bar and paste it below.</p>
+  <input type="text" id="failed-url-input" placeholder="http://localhost:PORT/callback?code=..." />
+  <button class="primary" onclick="processFailed()">Generate redirect link</button>
+  <p id="step3-error" style="color:#f85149;margin-top:0.5rem;display:none;"></p>
+</div>
+
+<!-- Step 4: Final redirect link -->
+<div class="step success" id="step-4">
+  <h2>Step 4 — Complete the authorization</h2>
+  <p>Click the link below. It routes the OAuth callback through your Codespace port-forwarding URL.</p>
+  <div class="link-box"><a id="final-link" href="#" target="_blank" rel="noopener"></a></div>
+  <p style="margin-top:1rem;">If you see <strong style="color:#3fb950;">"Build something great"</strong> — you're done! Claude Code is authorized.</p>
+</div>
+
+<script>
+  // ── helpers ──────────────────────────────────────────────────────────────
+
+  function show(id) {
+    document.getElementById(id).classList.add('active');
+  }
+
+  function copyPre(preId, btn) {
+    const text = document.getElementById(preId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  // ── state ─────────────────────────────────────────────────────────────────
+
+  let authUrl = '';
+  let portNumber = '';
+  let portFwdBase = '';   // e.g. https://....preview.app.github.dev  (no trailing slash)
+
+  // ── step 1: parse auth URL, extract port ─────────────────────────────────
+
+  function processAuthUrl() {
+    hideError('step1-error');
+    const raw = document.getElementById('auth-url-input').value.trim();
+    if (!raw) { showError('step1-error', 'Please paste the authorization URL.'); return; }
+
+    let parsed;
+    try { parsed = new URL(raw); } catch {
+      showError('step1-error', 'That does not look like a valid URL.'); return;
+    }
+
+    // Find redirect_uri param (may be encoded)
+    const redirectUri = parsed.searchParams.get('redirect_uri') || parsed.searchParams.get('redirect_url');
+    if (!redirectUri) {
+      showError('step1-error', 'Could not find a redirect_uri or redirect_url parameter in the URL.');
+      return;
+    }
+
+    // Extract port from something like  http://localhost:PORT/callback
+    let redirectParsed;
+    try { redirectParsed = new URL(redirectUri); } catch {
+      // might be relative or unencoded — try regex
+      const m = redirectUri.match(/:(\d+)\//);
+      if (m) { portNumber = m[1]; }
+      else { showError('step1-error', 'Could not extract a port number from the redirect URI: ' + redirectUri); return; }
+    }
+    if (redirectParsed) {
+      portNumber = redirectParsed.port;
+      if (!portNumber) { showError('step1-error', 'No port found in redirect URI: ' + redirectUri); return; }
+    }
+
+    authUrl = raw;
+
+    // Advance to step 2
+    document.getElementById('step2-heading').textContent =
+      `Step 2 — Provide the Codespace port-forwarding URL for port ${portNumber}`;
+    document.getElementById('step2-desc').textContent =
+      `In your Codespace's "Ports" tab, find port ${portNumber} and copy its forwarding URL (it looks like https://…-${portNumber}.preview.app.github.dev). Paste it below.`;
+
+    show('step-2');
+    document.getElementById('step-2').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── step 2: capture port-forwarding base URL ──────────────────────────────
+
+  function processPortFwd() {
+    hideError('step2-error');
+    let raw = document.getElementById('port-fwd-input').value.trim();
+    if (!raw) { showError('step2-error', 'Please paste the port-forwarding URL.'); return; }
+
+    // Normalise: strip trailing slash
+    raw = raw.replace(/\/+$/, '');
+
+    // Basic URL sanity
+    try { new URL(raw); } catch {
+      showError('step2-error', 'That does not look like a valid URL.'); return;
+    }
+
+    portFwdBase = raw;
+
+    // Populate and show auth link
+    const link = document.getElementById('auth-link');
+    link.href = authUrl;
+    link.textContent = authUrl;
+
+    show('step-3');
+    document.getElementById('step-3').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── step 3: build final redirect URL ─────────────────────────────────────
+
+  function processFailed() {
+    hideError('step3-error');
+    const raw = document.getElementById('failed-url-input').value.trim();
+    if (!raw) { showError('step3-error', 'Please paste the failed redirect URL.'); return; }
+
+    // We need everything from "callback" onward
+    const idx = raw.indexOf('/callback');
+    if (idx === -1) {
+      showError('step3-error', 'Could not find "/callback" in the URL. Make sure you copied the full address-bar URL after being redirected.');
+      return;
+    }
+
+    const callbackPart = raw.slice(idx);   // e.g. /callback?code=abc&state=xyz
+    const finalUrl = portFwdBase + callbackPart;
+
+    const link = document.getElementById('final-link');
+    link.href = finalUrl;
+    link.textContent = finalUrl;
+
+    show('step-4');
+    document.getElementById('step-4').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
